@@ -19,7 +19,7 @@ public class DecafParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		TK_class=1, LCURLY=2, RCURLY=3, ID=4, WS_=5, SL_COMMENT=6, CHAR=7, STRING=8;
+		TK_class=1, LCURLY=2, RCURLY=3, IF=4, CHAR=5, STRING=6, ID=7, WS_=8, SL_COMMENT=9;
 	public static final int
 		RULE_program = 0;
 	public static final String[] ruleNames = {
@@ -27,11 +27,11 @@ public class DecafParser extends Parser {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, null, "'{'", "'}'"
+		null, null, "'{'", "'}'", "'if'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "TK_class", "LCURLY", "RCURLY", "ID", "WS_", "SL_COMMENT", "CHAR", 
-		"STRING"
+		null, "TK_class", "LCURLY", "RCURLY", "IF", "CHAR", "STRING", "ID", "WS_", 
+		"SL_COMMENT"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -132,8 +132,8 @@ public class DecafParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\n\13\4\2\t\2\3\2"+
-		"\3\2\3\2\3\2\3\2\3\2\3\2\2\2\3\2\2\2\t\2\4\3\2\2\2\4\5\7\3\2\2\5\6\7\6"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\13\13\4\2\t\2\3\2"+
+		"\3\2\3\2\3\2\3\2\3\2\3\2\2\2\3\2\2\2\t\2\4\3\2\2\2\4\5\7\3\2\2\5\6\7\t"+
 		"\2\2\6\7\7\4\2\2\7\b\7\5\2\2\b\t\7\2\2\3\t\3\3\2\2\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
