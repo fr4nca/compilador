@@ -40,6 +40,14 @@ class Main {
         					case DecafLexer.STRING:
         						type = " STRINGLITERAL";
         						break;
+    						case DecafLexer.IF:
+        						type = " CONDICAOIF";
+        						break;
+        					case DecafLexer.NUMBER:
+        						type = " INTLITERAL";
+        						break;        
+        						
+        											
 		        			}
 		        			System.out.println (token.getLine() + type + " " + text);
 		        		}

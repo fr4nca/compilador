@@ -19,12 +19,18 @@ RCURLY : '}';
 
 IF: 'if';
 
+NUMBER: [0-9]+;
+
+OPARIT : ('+'|'-'|'*'|'/'|'%');
+OPREL : ('>'|'<'|'+='|'<='|'>='|'=='|'!=');
+OPLOGIC : ('&&'|'||');
+
+
 CHAR : '\'' (ESC|ASCII) '\'';
 
 STRING : '"' (ESC|ASCII)* '"';
 
-ID  :[a-zA-z_][a-zA-Z0-9_]*;
-
+ID  :[a-zA-Z_][a-zA-Z0-9_]*;
 
 
 fragment
