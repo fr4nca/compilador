@@ -40,12 +40,12 @@ class Main {
         					case DecafLexer.STRING:
         						type = " STRINGLITERAL";
         						break;
-    						case DecafLexer.IF:
-        						type = " CONDICAOIF";
-        						break;
         					case DecafLexer.NUMBER:
         						type = " INTLITERAL";
-        						break;        
+        						break; 
+        					case DecafLexer.BOOLEANVALOR:
+        						type = " BOOLEANLITERAL";
+        						break;   
         						
         											
 		        			}

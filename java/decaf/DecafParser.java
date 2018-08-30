@@ -19,8 +19,11 @@ public class DecafParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		TK_class=1, LCURLY=2, RCURLY=3, IF=4, NUMBER=5, OPARIT=6, OPREL=7, OPLOGIC=8, 
-		CHAR=9, STRING=10, ID=11, WS_=12, SL_COMMENT=13;
+		TK_class=1, LCURLY=2, RCURLY=3, LCOCHETE=4, RCOCHETE=5, LPARENTESE=6, 
+		RPARENTESE=7, PONTUACAO=8, IF=9, ELSE=10, BOOLEANVALOR=11, BOOLEAN=12, 
+		CAlLOUT=13, CLASS=14, INT=15, RETURN=16, VOID=17, FOR=18, BREAK=19, CONTINUE=20, 
+		NUMBER=21, OPARIT=22, OPREL=23, OPLOGIC=24, CHAR=25, STRING=26, ID=27, 
+		WS_=28, SL_COMMENT=29;
 	public static final int
 		RULE_program = 0;
 	public static final String[] ruleNames = {
@@ -28,11 +31,15 @@ public class DecafParser extends Parser {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, null, "'{'", "'}'", "'if'"
+		null, null, "'{'", "'}'", "'['", "']'", "'('", "')'", null, "'if'", "'else'", 
+		null, "'boolean'", "'callout'", "'class'", "'int'", "'return'", "'void'", 
+		"'for'", "'break'", "'continue'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "TK_class", "LCURLY", "RCURLY", "IF", "NUMBER", "OPARIT", "OPREL", 
-		"OPLOGIC", "CHAR", "STRING", "ID", "WS_", "SL_COMMENT"
+		null, "TK_class", "LCURLY", "RCURLY", "LCOCHETE", "RCOCHETE", "LPARENTESE", 
+		"RPARENTESE", "PONTUACAO", "IF", "ELSE", "BOOLEANVALOR", "BOOLEAN", "CAlLOUT", 
+		"CLASS", "INT", "RETURN", "VOID", "FOR", "BREAK", "CONTINUE", "NUMBER", 
+		"OPARIT", "OPREL", "OPLOGIC", "CHAR", "STRING", "ID", "WS_", "SL_COMMENT"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -133,8 +140,8 @@ public class DecafParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\17\13\4\2\t\2\3\2"+
-		"\3\2\3\2\3\2\3\2\3\2\3\2\2\2\3\2\2\2\t\2\4\3\2\2\2\4\5\7\3\2\2\5\6\7\r"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\37\13\4\2\t\2\3\2"+
+		"\3\2\3\2\3\2\3\2\3\2\3\2\2\2\3\2\2\2\t\2\4\3\2\2\2\4\5\7\3\2\2\5\6\7\35"+
 		"\2\2\6\7\7\4\2\2\7\b\7\5\2\2\b\t\7\2\2\3\t\3\3\2\2\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
