@@ -37,6 +37,9 @@ VOID : 'void';
 FOR :'for';
 BREAK : 'break';
 CONTINUE : 'continue';
+HEXINIT : '0x';
+
+HEX :HEXINIT [0-9a-fA-F]+;
 
 NUMBER: [0-9]+;
 
@@ -44,12 +47,15 @@ OPARIT : ('+'|'-'|'*'|'/'|'%');
 OPREL : ('>'|'<'|'+='|'<='|'>='|'=='|'!='|'=');
 OPLOGIC : ('&&'|'||');
 
-
 CHAR : '\'' (ESC|ASCII) '\'';
+
+ID  :[a-zA-Z_][a-zA-Z0-9_]*;
 
 STRING : '"' (ESC|ASCII)* '"';
 
-ID  :[a-zA-Z_][a-zA-Z0-9_]*;
+WS_ : (' ' | '\n' | '\t') -> skip;
+
+SL_COMMENT : '//' (~'\n')* '\n' -> skip;
 
 
 fragment
@@ -59,6 +65,7 @@ fragment
 ASCII : [a-zA-Z0-9 !#-&(-/:-@^-`{-~];
 
 
-WS_ : (' ' | '\n' | '\t') -> skip;
 
-SL_COMMENT : '//' (~'\n')* '\n' -> skip;
+
+
+

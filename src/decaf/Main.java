@@ -34,26 +34,28 @@ class Main {
 		        			case DecafLexer.ID:
 		        				type = " IDENTIFIER";
 		        				break; 
-	        				case DecafLexer.CHAR:
+	        				case DecafLexer.CHAR: 
 	        					type = " CHARLITERAL";
-	        					break; 
+	        					break;    
         					case DecafLexer.STRING:
         						type = " STRINGLITERAL";
         						break;
         					case DecafLexer.NUMBER:
         						type = " INTLITERAL";
-        						break; 
+        						break;     
         					case DecafLexer.BOOLEANVALOR:
-        						type = " BOOLEANLITERAL";
-        						break;   
-        						
+        						type = " BOOLEANLITERAL";    
+        						break;
+    						case DecafLexer.HEXINIT:
+    							throw new Exception("unexpected char: 0x");
+    							 
         											
-		        			}
+		        			}  
 		        			System.out.println (token.getLine() + type + " " + text);
 		        		}
 		        		done = true;
-        			} catch(Exception e) {
-        	        	// print the error:
+        			} catch(Exception e) {  
+        	        	// print the error:   
         	            System.out.println(CLI.infile+" "+e);
         	            lexer.skip();
         	        }
