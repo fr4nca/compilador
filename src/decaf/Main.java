@@ -68,23 +68,22 @@ class Main {
 				CommonTokenStream tokens = new CommonTokenStream(lexer);
 				DecafParser parser = new DecafParser(tokens);
 				ParseTree tree = parser.program();
-				
-				if (CLI.debug) {
-                    
-                    System.out.println(tree.toStringTree(parser));
 
-                    //show AST in GUI
-                    JFrame frame = new JFrame("Antlr AST");
-                    JPanel panel = new JPanel();
-                    TreeViewer viewr = new TreeViewer(Arrays.asList(
-                            parser.getRuleNames()),tree);
-                    viewr.setScale(1.5);
-                    panel.add(viewr);
-                    frame.add(panel);
-                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    frame.setSize(200,200);
-                    frame.setVisible(true);
-                }
+				if (CLI.debug) {
+
+					System.out.println(tree.toStringTree(parser));
+
+					// show AST in GUI
+					JFrame frame = new JFrame("Antlr AST");
+					JPanel panel = new JPanel();
+					TreeViewer viewr = new TreeViewer(Arrays.asList(parser.getRuleNames()), tree);
+					viewr.setScale(1.5);
+					panel.add(viewr);
+					frame.add(panel);
+					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					frame.setSize(200, 200);
+					frame.setVisible(true);
+				}
 			}
 
 		} catch (Exception e) {

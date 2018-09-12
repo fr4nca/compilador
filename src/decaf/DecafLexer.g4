@@ -17,13 +17,14 @@ tokens
 LCURLY : '{';
 RCURLY : '}';
 
-LCOCHETE : '[';
-RCOCHETE : ']';
+LCOLCHETE : '[';
+RCOLCHETE : ']';
 
 LPARENTESE : '(';
 RPARENTESE : ')';
 
-PONTUACAO : (','|';');
+VIRGULA : (',');
+PONTOVIRGULA : ';';
 
 IF: 'if';
 ELSE : 'else';
@@ -31,6 +32,7 @@ BOOLEANVALOR : ('false'|'true');
 BOOLEAN : 'boolean';
 CAlLOUT : 'callout';
 CLASS : 'class';
+PROGRAM : 'Program';
 INT : 'int';
 RETURN : 'return';
 VOID : 'void';
