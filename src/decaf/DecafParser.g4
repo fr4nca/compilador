@@ -27,7 +27,7 @@ method_call : (method_name LPARENTESE (expr (VIRGULA expr)*)* RPARENTESE
 			| CALLOUT LPARENTESE STRING (VIRGULA call_arg (VIRGULA call_arg)*)* RPARENTESE );
 method_name : ID;
 location : (ID | ID LCOLCHETE expr RCOLCHETE);
-expr : location 
+expr : location (expr)*
 	| method_call 
 	| literal 
 	| expr bin_op expr 
