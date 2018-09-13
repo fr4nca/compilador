@@ -30,7 +30,7 @@ IF: 'if';
 ELSE : 'else';
 BOOLEANVALOR : ('false'|'true');
 BOOLEAN : 'boolean';
-CAlLOUT : 'callout';
+CALLOUT : 'callout';
 CLASS : 'class';
 PROGRAM : 'Program';
 INT : 'int';
@@ -45,9 +45,15 @@ HEX :HEXINIT [0-9a-fA-F]+;
 
 NUMBER: [0-9]+;
 
+MENOS : '-';
 OPARIT : ('+'|'-'|'*'|'/'|'%');
-OPREL : ('>'|'<'|'+='|'<='|'>='|'=='|'!='|'=');
-OPLOGIC : ('&&'|'||');
+OPREL : ('>'|'<'|'<='|'>=');
+OPEQ : ('=='|'!=');
+OPCOND : ('&&'|'||');
+EXCLAMACAO : '!';
+OPIGUAL : '=';
+OPMAISIGUAL : '+=';
+OPMENOSIGUAL : '-=';
 
 CHAR : '\'' (ESC|ASCII) '\'';
 
