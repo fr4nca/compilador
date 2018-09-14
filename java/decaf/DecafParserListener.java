@@ -1,4 +1,4 @@
-// Generated from /d/Faculdade/6sem/Compiladores/lab02/provided/compilador/src/decaf/DecafParser.g4 by ANTLR 4.5.3
+// Generated from /d/Faculdade/6/Compiladores/lab02/provided/compilador/src/decaf/DecafParser.g4 by ANTLR 4.5.3
 
 package decaf;
 
