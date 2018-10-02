@@ -23,7 +23,7 @@ RCOLCHETE : ']';
 LPARENTESE : '(';
 RPARENTESE : ')';
 
-VIRGULA : (',');
+VIRGULA : ',';
 PONTOVIRGULA : ';';
 
 IF: 'if';
