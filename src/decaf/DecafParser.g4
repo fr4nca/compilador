@@ -41,6 +41,3 @@ type:  (INT | BOOLEAN);
 int_literal : (NUMBER | HEX);
 char_literal : CHAR;
 bool_literal : BOOLEANVALOR;
-
-
-// 
