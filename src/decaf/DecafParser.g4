@@ -10,7 +10,7 @@ options {
 }
 
 program: CLASS PROGRAM LCURLY (field_decl)* (method_decl)* RCURLY;
-field_decl : ( type ID | type ID LCOLCHETE (int_literal)+ RCOLCHETE( VIRGULA ( type ID LCOLCHETE int_literal RCOLCHETE | type ID ))*) PONTOVIRGULA;
+field_decl : ( type ID | type ID LCOLCHETE (int_literal)+ RCOLCHETE( VIRGULA ( type ID LCOLCHETE int_literal RCOLCHETE | type ID PONTOVIRGULA))*) PONTOVIRGULA;
 method_decl : (type | VOID) ID LPARENTESE ( type ID (VIRGULA type ID)*)* RPARENTESE block;
 block : LCURLY (var_decl)* (statement)* RCURLY;
 var_decl : type ID (VIRGULA ID)* PONTOVIRGULA ;
