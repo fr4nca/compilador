@@ -1,10 +1,12 @@
 package decaf;
 
+import java.awt.Dimension;
 import java.io.*;
 //import antlr.Token;
 import java.util.Arrays;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -111,12 +113,14 @@ class Main {
 					// show AST in GUI
 					JFrame frame = new JFrame("Antlr AST");
 					JPanel panel = new JPanel();
+					JScrollPane scroll = new JScrollPane();
 					TreeViewer viewr = new TreeViewer(Arrays.asList(parser.getRuleNames()), tree);
-					viewr.setScale(1.5);// scale a little
+
+					viewr.setScale(1);// scale a little
 					panel.add(viewr);
 					frame.add(panel);
 					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-					frame.setSize(600, 400);
+					frame.setSize(700, 700);
 					frame.setVisible(true);
 				}
 			}
