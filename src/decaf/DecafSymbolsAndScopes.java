@@ -50,15 +50,15 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         popScope();
     }
 
-    // void defineVar(DecafParser.TypeContext typeCtx, Token nameToken) {
-    // int typeTokenType = typeCtx.start.getType();
-    // VariableSymbol var = new VariableSymbol(nameToken.getText());
+    void defineVar(DecafParser.TypeContext typeCtx, Token nameToken) {
+        // int typeTokenType = typeCtx.start.getType();
+        VariableSymbol var = new VariableSymbol(nameToken.getText());
 
-    // // DecafSymbol.Type type = this.getType(typeTokenType);
-    // // var.setType(type);
+        // DecafSymbol.Type type = this.getType(typeTokenType);
+        // var.setType(type);
 
-    // currentScope.define(var); // Define symbol in current scope
-    // }
+        currentScope.define(var); // Define symbol in current scope
+    }
 
     /**
      * Método que atuliza o escopo para o atual e imprime o valor
