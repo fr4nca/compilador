@@ -30,7 +30,24 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void exitProgram(DecafParser.ProgramContext ctx) {
-        System.out.println(globals);
+        System.out.println("Saindo do escopo global\n" + globals);
+        if (!globals.getSymbols().contains(new FunctionSymbol("main"))) {
+            System.err.println("No main method");
+            System.exit(0);
+        }
+
+    }
+
+    @Override
+    public void enterField_decl(DecafParser.Field_declContext ctx) {
+        Token name = ctx.ID().get(0).getSymbol();
+        String nome = ctx.ID().get(1).getText();
+        System.out.println(nome);
+        this.defineVar(name);
+    }
+
+    @Override
+    public void exitField_decl(DecafParser.Field_declContext ctx) {
     }
 
     @Override
@@ -78,6 +95,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void exitStatement(DecafParser.StatementContext ctx) {
+
     }
 
     @Override
@@ -100,7 +118,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         currentScope.define(var); // Define symbol in current scope
         System.out.println("Variável declarada: " + var.getName());
         System.out.println("Variáveis no escopo: " + currentScope.getSymbolNames());
-
     }
 
     /**
