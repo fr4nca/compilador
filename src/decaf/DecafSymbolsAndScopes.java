@@ -41,8 +41,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     @Override
     public void enterField_decl(DecafParser.Field_declContext ctx) {
         Token name = ctx.ID().get(0).getSymbol();
-        String nome = ctx.ID().get(1).getText();
-        System.out.println(nome);
         this.defineVar(name);
     }
 
