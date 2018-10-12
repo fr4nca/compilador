@@ -41,6 +41,18 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     @Override
     public void enterField_decl(DecafParser.Field_declContext ctx) {
         Token name = ctx.ID().get(0).getSymbol();
+        if (ctx.LCOLCHETE().size() > 0) {
+            if (ctx.LCOLCHETE().get(0).getText() != "") {
+                String index = ctx.int_literal().get(0).NUMBER().getText();
+                int numero = Integer.parseInt(index);
+                System.out.println(numero);
+                if (numero <= 0) {
+                    Token alecrim = ctx.int_literal().get(0).NUMBER().getSymbol();
+                    this.error(alecrim, "bad array size");
+                    System.exit(0);
+                }
+            }
+        }
         this.defineVar(name);
     }
 
