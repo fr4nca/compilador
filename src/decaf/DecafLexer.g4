@@ -65,7 +65,6 @@ WS_ : (' ' | '\n' | '\t') -> skip;
 
 SL_COMMENT : '//' (~'\n')* '\n' -> skip;
 
-
 fragment
 ESC :  '\\' ('n'|'"'|'t'|'\\'|'\'');
 
