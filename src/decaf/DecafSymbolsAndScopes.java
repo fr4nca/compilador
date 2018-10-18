@@ -23,6 +23,11 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     ParseTreeProperty<Scope> scopes = new ParseTreeProperty<Scope>();
     GlobalScope globals;
     Scope currentScope; // define symbols in this scope
+    static List errors;
+
+    public DecafSymbolsAndScopes() {
+        errors = new ArrayList<String>();
+    }
 
     @Override
     public void enterProgram(DecafParser.ProgramContext ctx) {
@@ -34,15 +39,14 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     public void exitProgram(DecafParser.ProgramContext ctx) {
         System.out.println("Saindo do escopo global\n" + globals);
         if (!globals.getSymbols().contains(new FunctionSymbol("main"))) {
-            System.err.println("No main method");
+            System.out.println("No main method declared");
             System.exit(0);
         }
-
     }
 
     @Override
     public void enterField_decl(DecafParser.Field_declContext ctx) {
-        Token name = ctx.ID().get(0).getSymbol();
+        Token name = ctx.decl_id().get(0).ID().getSymbol();
         if (ctx.LCOLCHETE().size() > 0) {
             String index = ctx.int_literal().get(0).NUMBER().getText();
             int numero = Integer.parseInt(index);
@@ -64,7 +68,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
         // need parser to get tokens
 
-        String methodName = ctx.ID().get(0).getText();
+        String methodName = ctx.ID().getText();
 
         // push new scope by making new one that points to enclosing scope
         FunctionSymbol function = new FunctionSymbol(methodName);
@@ -87,6 +91,15 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void exitBlock(DecafParser.BlockContext ctx) {
+        System.out.println("Saindo Alecrim");
+    }
+
+    @Override
+    public void enterDecl_id(DecafParser.Decl_idContext ctx) {
+    }
+
+    @Override
+    public void exitDecl_id(DecafParser.Decl_idContext ctx) {
     }
 
     @Override
@@ -107,12 +120,19 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     @Override
     public void enterVar_decl(DecafParser.Var_declContext ctx) {
         List<Token> names = new ArrayList<Token>();
-        for (int i = 0; i < ctx.ID().size(); i++) {
-            names.add(ctx.ID().get(i).getSymbol());
+        names.add(ctx.decl_id().ID().getSymbol());
+        if (ctx.ID() != null) {
+            for (int i = 0; i < ctx.ID().size(); i++) {
+                names.add(ctx.ID().get(i).getSymbol());
+            }
         }
         for (Token name : names) {
             defineVar(name);
         }
+    }
+
+    @Override
+    public void enterInt_literal(DecafParser.Int_literalContext ctx) {
     }
 
     @Override
@@ -160,7 +180,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     }
 
     public static void error(Token t, String msg) {
-        System.err.printf("line %d:%d %s\n", t.getLine(), t.getCharPositionInLine(), msg);
+        System.out.printf("line %d %s", t.getLine(), msg);
         System.exit(0);
     }
 
