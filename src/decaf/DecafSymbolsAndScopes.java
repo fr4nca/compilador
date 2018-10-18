@@ -40,7 +40,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         System.out.println("Saindo do escopo global\n" + globals);
         if (!globals.getSymbols().contains(new FunctionSymbol("main"))) {
             System.out.println("No main method declared");
-            System.exit(0);
         }
     }
 
@@ -51,8 +50,8 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             String index = ctx.int_literal().get(0).NUMBER().getText();
             int numero = Integer.parseInt(index);
             if (numero <= 0) {
-                Token alecrim = ctx.int_literal().get(0).NUMBER().getSymbol();
-                this.error(alecrim, "bad array size");
+                Token t = ctx.int_literal().get(0).NUMBER().getSymbol();
+                this.error(t, "bad array size");
             }
 
         }
@@ -66,11 +65,8 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     @Override
     public void enterMethod_decl(DecafParser.Method_declContext ctx) {
 
-        // need parser to get tokens
-
         String methodName = ctx.ID().getText();
 
-        // push new scope by making new one that points to enclosing scope
         FunctionSymbol function = new FunctionSymbol(methodName);
         // function.setType(type); // Set symbol type
 
@@ -91,7 +87,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void exitBlock(DecafParser.BlockContext ctx) {
-        System.out.println("Saindo Alecrim");
     }
 
     @Override
@@ -104,13 +99,24 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void enterStatement(DecafParser.StatementContext ctx) {
+        if (ctx.RETURN() == null) {
+            if (ctx.location().ID() != null) {
+                Token t = ctx.location().ID().getSymbol();
+                List<? extends Symbol> globalSymbols = globals.getSymbols();
+                List<? extends Symbol> scopeSymbols = currentScope.getSymbols();
 
-        Token t = ctx.location().ID().getSymbol();
-        List<? extends Symbol> symbols = currentScope.getSymbols();
-
-        if (!symbols.contains(new VariableSymbol(t.getText()))) {
-            this.error(t, "identifier used before being declared");
+                if (!scopeSymbols.contains(new VariableSymbol(t.getText()))
+                        && !globalSymbols.contains(new VariableSymbol(t.getText()))) {
+                    this.error(t, "identifier used before being declared");
+                }
+            }
         }
+
+    }
+
+    @Override
+    public void enterLocation(DecafParser.LocationContext ctx) {
+        System.out.println(ctx.ID().getText());
     }
 
     @Override
@@ -180,8 +186,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     }
 
     public static void error(Token t, String msg) {
-        System.out.printf("line %d %s", t.getLine(), msg);
-        System.exit(0);
+        System.out.printf("line %d - %s\n", t.getLine(), msg);
     }
 
     /**
