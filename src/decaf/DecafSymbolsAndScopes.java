@@ -6,15 +6,21 @@ import org.antlr.symtab.LocalScope;
 import org.antlr.symtab.Scope;
 import org.antlr.symtab.VariableSymbol;
 import org.antlr.symtab.Symbol;
+import org.antlr.symtab.Type;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import decaf.DecafParser.Bool_literalContext;
+import decaf.DecafParser.Method_callContext;
+
 import java.lang.System;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import com.sun.org.apache.xpath.internal.SourceTree;
 
 /**
  * This class defines basic symbols and scopes for Decaf language
@@ -24,6 +30,8 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     GlobalScope globals;
     Scope currentScope; // define symbols in this scope
     static List errors;
+    int nDecl;
+    boolean tmetodo;
 
     public DecafSymbolsAndScopes() {
         errors = new ArrayList<String>();
@@ -71,10 +79,19 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         // function.setType(type); // Set symbol type
 
         currentScope.define(function); // Define function in current scope
+        
+        if(ctx.decl_id().size()>0){
+            nDecl = ctx.decl_id().size();
+            
+        }
+        if(ctx.VOID()!=null){
+            tmetodo=true;
+        }
 
         saveScope(ctx, function);
         pushScope(function);
     }
+
 
     @Override
     public void exitMethod_decl(DecafParser.Method_declContext ctx) {
@@ -110,17 +127,36 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
                     this.error(t, "identifier used before being declared");
                 }
             }
+        }else if(tmetodo){
+            Token t=ctx.RETURN().getSymbol();
+            this.error(t, "should not return value;");
+        }
+    }
+
+    @Override
+    public void enterMethod_call(Method_callContext ctx) {
+    }
+    
+
+    @Override 
+    public void enterExpr(DecafParser.ExprContext ctx) { 
+        if(ctx.method_call()!=null){
+            if(nDecl!=ctx.method_call().expr().size()){
+                Token t = ctx.method_call().method_name().ID().getSymbol();
+                this.error(t, "argument mismatch");
+            }
         }
 
     }
 
+
     @Override
     public void enterLocation(DecafParser.LocationContext ctx) {
-        System.out.println(ctx.ID().getText());
     }
 
     @Override
     public void exitStatement(DecafParser.StatementContext ctx) {
+
     }
 
     @Override
@@ -139,6 +175,10 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void enterInt_literal(DecafParser.Int_literalContext ctx) {
+    }
+    @Override
+    public void enterBool_literal(Bool_literalContext ctx) {
+
     }
 
     @Override
