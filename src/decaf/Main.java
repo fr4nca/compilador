@@ -113,12 +113,14 @@ class Main {
 					// show AST in GUI
 					JFrame frame = new JFrame("Antlr AST");
 					JPanel panel = new JPanel();
-					JScrollPane scroll = new JScrollPane();
+					
 					TreeViewer viewr = new TreeViewer(Arrays.asList(parser.getRuleNames()), tree);
 
 					viewr.setScale(1);// scale a little
 					panel.add(viewr);
 					frame.add(panel);
+					JScrollPane scroll = new JScrollPane(panel);
+					frame.add(scroll);
 					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 					frame.setSize(700, 700);
 					frame.setVisible(true);
