@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import decaf.DecafParser.Bool_literalContext;
+import decaf.DecafParser.Int_literalContext;
 import decaf.DecafParser.Method_callContext;
 
 import java.lang.System;
@@ -47,7 +48,8 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     public void exitProgram(DecafParser.ProgramContext ctx) {
         System.out.println("Saindo do escopo global\n" + globals);
         if (!globals.getSymbols().contains(new FunctionSymbol("main"))) {
-            System.out.println("No main method declared");
+            Token t= ctx.CLASS().getSymbol();
+            this.error(t, "No main method declared");
         }
     }
 
@@ -112,11 +114,13 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void exitDecl_id(DecafParser.Decl_idContext ctx) {
+        
     }
 
     @Override
     public void enterStatement(DecafParser.StatementContext ctx) {
         if (ctx.RETURN() == null) {
+            if(ctx.location()!=null){
             if (ctx.location().ID() != null) {
                 Token t = ctx.location().ID().getSymbol();
                 List<? extends Symbol> globalSymbols = globals.getSymbols();
@@ -127,6 +131,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
                     this.error(t, "identifier used before being declared");
                 }
             }
+        }
         }else if(tmetodo){
             Token t=ctx.RETURN().getSymbol();
             this.error(t, "should not return value;");
@@ -134,17 +139,21 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     }
 
     @Override
-    public void enterMethod_call(Method_callContext ctx) {
+    public void exitMethod_call(Method_callContext ctx) {
+        
     }
     
 
     @Override 
     public void enterExpr(DecafParser.ExprContext ctx) { 
         if(ctx.method_call()!=null){
-            if(nDecl!=ctx.method_call().expr().size()){
-                Token t = ctx.method_call().method_name().ID().getSymbol();
-                this.error(t, "argument mismatch");
+            if(ctx.method_call().CALLOUT()==null){
+                if(nDecl!=ctx.method_call().expr().size()){
+                    Token t = ctx.method_call().LPARENTESE().getSymbol();
+                    this.error(t, "argument mismatch");
+                }
             }
+            
         }
 
     }
@@ -162,24 +171,29 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     @Override
     public void enterVar_decl(DecafParser.Var_declContext ctx) {
         List<Token> names = new ArrayList<Token>();
-        names.add(ctx.decl_id().ID().getSymbol());
-        if (ctx.ID() != null) {
-            for (int i = 0; i < ctx.ID().size(); i++) {
-                names.add(ctx.ID().get(i).getSymbol());
+        List<? extends Symbol> scopeSymbols = currentScope.getSymbols();
+        if(!scopeSymbols.contains(new VariableSymbol(ctx.decl_id().ID().getText()))){
+            names.add(ctx.decl_id().ID().getSymbol());
+        
+            if (ctx.ID() != null) {
+                for (int i = 0; i < ctx.ID().size(); i++) {
+                    if(!scopeSymbols.contains(new VariableSymbol(ctx.ID().get(i).getText()))){
+                        names.add(ctx.ID().get(i).getSymbol());
+                    }
+                    
+                }
             }
+        }else{
+            Token t = ctx.decl_id().ID().getSymbol();
+            this.error(t, "identifier declared twice");
         }
+        
+       
         for (Token name : names) {
             defineVar(name);
         }
     }
 
-    @Override
-    public void enterInt_literal(DecafParser.Int_literalContext ctx) {
-    }
-    @Override
-    public void enterBool_literal(Bool_literalContext ctx) {
-
-    }
 
     @Override
     public void exitVar_decl(DecafParser.Var_declContext ctx) {
