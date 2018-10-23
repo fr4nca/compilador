@@ -32,8 +32,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     Scope currentScope; // define symbols in this scope
     static List errors;
     int nDecl;
-    boolean tmetodo;
-    String tMetodoReturn, tLiteral;
+    boolean tmetodo, vFor;
 
     public DecafSymbolsAndScopes() {
         errors = new ArrayList<String>();
@@ -91,8 +90,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         }
         if(ctx.VOID()!=null){
             tmetodo=true;
-        }else{
-            tMetodoReturn=ctx.type().getText();
         }
 
         saveScope(ctx, function);
@@ -124,17 +121,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     }
 
     @Override
-    public void exitBool_literal(Bool_literalContext ctx) {
-        tLiteral="boolean";
-    }
-
-    @Override
-    public void exitInt_literal(Int_literalContext ctx) {
-        tLiteral="boolean";
-    }
-
-
-    @Override
     public void enterStatement(DecafParser.StatementContext ctx) {
         if (ctx.RETURN() == null) {
             if(ctx.location()!=null){
@@ -152,6 +138,12 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         }else if(tmetodo){
             Token t=ctx.RETURN().getSymbol();
             this.error(t, "should not return value;");
+        }
+
+        if(ctx.FOR()!=null){
+            vFor=true;
+        }else{
+            vFor=false;
         }
     }
 
@@ -172,6 +164,15 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             }
             
         }
+        if(vFor){
+            if(ctx.literal()!=null){
+                if(ctx.literal().int_literal()==null){
+                    Token t=ctx.literal().bool_literal().BOOLEANVALOR().getSymbol();
+                    this.error(t, "initial condition must be an int");
+                }
+            }
+            
+        }
 
     }
 
@@ -182,16 +183,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
     @Override
     public void exitStatement(DecafParser.StatementContext ctx) {
-        if(!tmetodo){
-            if(ctx.RETURN()!=null){
-                if(tMetodoReturn!=tLiteral){
-                    Token t=ctx.RETURN().getSymbol();
-                    this.error(t, "return value has wrong type");
-                }
-            }
-            
-        }
-        
 
 
     }
