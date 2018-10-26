@@ -13,8 +13,17 @@ import org.antlr.symtab.Symbol;
 import org.antlr.symtab.Type;
 
 public class DecafSymbol { // A generic programming language symbol
-    public static enum Type {
-        tINVALID, tVOID, tINT, tFLOAT
+    public static enum Type implements org.antlr.symtab.Type{
+        tINVALID, tINT, tBOOLEAN;
+
+        @Override
+        public String getName(){
+            return this.name();
+        }
+        @Override
+        public int getTypeIndex(){
+            return this.ordinal();
+        }
     }
 
     String name; // All symbols at least have a name
@@ -33,7 +42,6 @@ public class DecafSymbol { // A generic programming language symbol
     public String getName() {
         return name;
     }
-
     public String toString() {
         if (type != Type.tINVALID)
             return '<' + getName() + ":" + type + '>';

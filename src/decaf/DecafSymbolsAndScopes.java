@@ -14,7 +14,10 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import decaf.DecafParser.Bool_literalContext;
 import decaf.DecafParser.Int_literalContext;
+import decaf.DecafParser.LocationContext;
 import decaf.DecafParser.Method_callContext;
+import decaf.DecafParser.TypeContext;
+import decaf.DecafSymbol;
 
 import java.lang.System;
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.sun.org.apache.xpath.internal.SourceTree;
+import com.sun.org.apache.xpath.internal.operations.Variable;
 
 /**
  * This class defines basic symbols and scopes for Decaf language
@@ -33,6 +37,9 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     static List errors;
     int nDecl;
     boolean tmetodo, vFor, vAssign_op;
+    List<VariableSymbol> argumentos =  new ArrayList<VariableSymbol>();
+    List<VariableSymbol> parametros = new ArrayList<VariableSymbol>();
+    List<VariableSymbol> variaveis = new ArrayList<VariableSymbol>();
 
     public DecafSymbolsAndScopes() {
         errors = new ArrayList<String>();
@@ -65,11 +72,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             }
 
         }
-        this.defineVar(name);
-    }
-
-    @Override
-    public void exitField_decl(DecafParser.Field_declContext ctx) {
+        this.defineVar(ctx.decl_id(0).type(),name);
     }
 
     @Override
@@ -84,38 +87,35 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
 
         if(ctx.decl_id().size()>0){
             nDecl = ctx.decl_id().size();
+            for(int i=0;i<ctx.decl_id().size();i++){
+                if(ctx.decl_id(i).type().INT()!=null){
+                    VariableSymbol pInt = new VariableSymbol(ctx.decl_id(i).ID().getText());
+                    pInt.setType(decaf.DecafSymbol.Type.tINT);
+                    parametros.add(pInt);
+                }else{
+                    VariableSymbol pBoo = new VariableSymbol(ctx.decl_id(i).ID().getText());
+                    pBoo.setType(decaf.DecafSymbol.Type.tBOOLEAN);
+                    parametros.add(pBoo);
+                }    
+            }
             
         }
         if(ctx.VOID()!=null){
             tmetodo=true;
         }
-
         saveScope(ctx, function);
         pushScope(function);
+        for(int i=0;i<ctx.decl_id().size();i++){
+            VariableSymbol vPa = new VariableSymbol(ctx.decl_id(i).ID().getText());
+            currentScope.define(vPa);
+        }
     }
 
 
     @Override
     public void exitMethod_decl(DecafParser.Method_declContext ctx) {
-        
         popScope();
-    }
-
-    @Override
-    public void enterBlock(DecafParser.BlockContext ctx) {
-    }
-
-    @Override
-    public void exitBlock(DecafParser.BlockContext ctx) {
-    }
-
-    @Override
-    public void enterDecl_id(DecafParser.Decl_idContext ctx) {
-    }
-
-    @Override
-    public void exitDecl_id(DecafParser.Decl_idContext ctx) {
-        
+       
     }
 
     @Override
@@ -154,19 +154,14 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
        
     }
 
-    @Override
-    public void exitMethod_call(Method_callContext ctx) {
-        
-    }
     
-
     @Override 
     public void enterExpr(DecafParser.ExprContext ctx) { 
         if(ctx.method_call()!=null&&ctx.method_call().CALLOUT()==null){
             if(nDecl!=ctx.method_call().expr().size()){
                 Token t = ctx.method_call().LPARENTESE().getSymbol();
                 this.error(t, "argument mismatch");
-            }
+            }   
         }
         if(vFor){
             if(ctx.literal()!=null&&ctx.literal().int_literal()==null){
@@ -174,22 +169,49 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
                 this.error(t, "initial condition must be an int");
                 
             }
-            
+        }
+    }
+
+    @Override
+    public void enterMethod_call(Method_callContext ctx) {
+        argumentos.clear();
+    }
+
+    @Override
+    public void exitMethod_call(Method_callContext ctx) {
+        if(ctx.expr()!=null&&!argumentos.isEmpty()&&!parametros.isEmpty()
+            &&parametros.size()==argumentos.size()){
+            for(int i=0;i<ctx.expr().size();i++){
+                if(argumentos.get(i).getType()!=parametros.get(i).getType()){
+                    this.error(ctx.LPARENTESE().getSymbol(), "types don't match signature");
+                }
+            }
+        }
+    }
+    @Override
+    public void exitLocation(LocationContext ctx) {
+        if(variaveis.contains(new VariableSymbol(ctx.ID().getText()))){
+            int i = variaveis.indexOf(new VariableSymbol(ctx.ID().getText()));
+            VariableSymbol vLoc= new VariableSymbol(ctx.ID().getText());
+            vLoc.setType(variaveis.get(i).getType());
+            argumentos.add(vLoc);
         }
         
-       
-
-    }
-
-
-    @Override
-    public void enterLocation(DecafParser.LocationContext ctx) {
     }
 
     @Override
-    public void exitStatement(DecafParser.StatementContext ctx) {
-        
+    public void exitInt_literal(Int_literalContext ctx) {
+        VariableSymbol vInt = new VariableSymbol(ctx.getText());
+        vInt.setType(decaf.DecafSymbol.Type.tINT);
+        argumentos.add(vInt);           
 
+    }
+
+    @Override
+    public void exitBool_literal(Bool_literalContext ctx) {
+        VariableSymbol vBoo = new VariableSymbol(ctx.getText());
+        vBoo.setType(decaf.DecafSymbol.Type.tBOOLEAN);
+        argumentos.add(vBoo);
     }
 
     @Override
@@ -211,25 +233,21 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             Token t = ctx.decl_id().ID().getSymbol();
             this.error(t, "identifier declared twice");
         }
-        
-       
         for (Token name : names) {
-            defineVar(name);
+            defineVar(ctx.decl_id().type(),name);
         }
     }
 
-
-    @Override
-    public void exitVar_decl(DecafParser.Var_declContext ctx) {
-    }
-
-    void defineVar(Token nameToken) {
-        // int typeTokenType = typeCtx.start.getType();
+    void defineVar(TypeContext typeCtx,Token nameToken) {
         VariableSymbol var = new VariableSymbol(nameToken.getText());
 
-        // DecafSymbol.Type type = this.getType(typeTokenType);
-        // var.setType(type);
 
+        DecafSymbol.Type type = this.getTypee(typeCtx.getStart().getType());
+        // System.out.println(type);
+        
+        var.setType(type);
+
+        variaveis.add(var);
         currentScope.define(var); // Define symbol in current scope
         System.out.println("Variável declarada: " + var.getName());
         System.out.println("Variáveis no escopo: " + currentScope.getSymbolNames());
@@ -241,6 +259,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
      * @param s
      */
     private void pushScope(Scope s) {
+       
         currentScope = s;
         System.out.println("entering: " + currentScope.getName() + ":" + s);
     }
@@ -273,14 +292,14 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
      * @param tokenType
      * @return //
      */
-    // public static DecafSymbol.Type getType(int tokenType) {
-    // switch (tokenType) {
-    // case DecafParser.VOID:
-    // return DecafSymbol.Type.tVOID;
-    // case DecafParser.INT_LITERAL:
-    // return DecafSymbol.Type.tINT;
-    // }
-    // return DecafSymbol.Type.tINVALID;
-    // }
+    public static DecafSymbol.Type getTypee(int tokenType) {
+    switch (tokenType) {
+    case DecafParser.INT:
+    return DecafSymbol.Type.tINT;
+    case DecafParser.BOOLEAN:
+    return DecafSymbol.Type.tBOOLEAN;
+    }
+    return DecafSymbol.Type.tINVALID;
+    }
 
 }
