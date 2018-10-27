@@ -16,6 +16,7 @@ import decaf.DecafParser.Bool_literalContext;
 import decaf.DecafParser.Int_literalContext;
 import decaf.DecafParser.LocationContext;
 import decaf.DecafParser.Method_callContext;
+import decaf.DecafParser.Return_metContext;
 import decaf.DecafParser.TypeContext;
 import decaf.DecafSymbol;
 
@@ -36,10 +37,11 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     Scope currentScope; // define symbols in this scope
     static List errors;
     int nDecl;
-    boolean tmetodo, vFor, vAssign_op;
+    boolean mVoid, vFor, vAssign_op;
     List<VariableSymbol> argumentos =  new ArrayList<VariableSymbol>();
     List<VariableSymbol> parametros = new ArrayList<VariableSymbol>();
     List<VariableSymbol> variaveis = new ArrayList<VariableSymbol>();
+    List<FunctionSymbol> funcoes = new ArrayList<FunctionSymbol>();
 
     public DecafSymbolsAndScopes() {
         errors = new ArrayList<String>();
@@ -81,7 +83,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         String methodName = ctx.ID().getText();
 
         FunctionSymbol function = new FunctionSymbol(methodName);
-        // function.setType(type); // Set symbol type
+        
 
         currentScope.define(function); // Define function in current scope
 
@@ -100,9 +102,16 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             }
             
         }
+
         if(ctx.VOID()!=null){
-            tmetodo=true;
+            mVoid=true;
+            funcoes.add(function);
+        }else{
+            DecafSymbol.Type type = this.getTypee(ctx.type().getStart().getType());
+            function.setType(type); // Set symbol type
+            funcoes.add(function);
         }
+
         saveScope(ctx, function);
         pushScope(function);
         for(int i=0;i<ctx.decl_id().size();i++){
@@ -119,8 +128,28 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     }
 
     @Override
+    public void exitReturn_met(Return_metContext ctx) {
+        if(!mVoid){
+            Type type=DecafSymbol.Type.tINT;
+            if(ctx.expr(0).location()!=null){
+                type = variaveis.get(variaveis.indexOf(new VariableSymbol(ctx.expr(0).location().ID().getText()))).getType();
+            }else if(ctx.expr(0).literal()!=null&&ctx.expr(0).literal().bool_literal()!=null){
+                type = argumentos.get(argumentos.indexOf(new VariableSymbol(ctx.expr(0).literal().bool_literal().getText()))).getType();
+            }else if(ctx.expr(0).literal()!=null&&ctx.expr(0).literal().int_literal()!=null){
+                type = argumentos.get(argumentos.indexOf(new VariableSymbol(ctx.expr(0).literal().int_literal().getText()))).getType();
+            }
+        
+            if(type!=funcoes.get(0).getType()){
+                this.error(ctx.RETURN().getSymbol(), "return value has wrong type");
+            }
+        }
+        
+        
+    }
+
+    @Override
     public void enterStatement(DecafParser.StatementContext ctx) {
-        if (ctx.RETURN() == null) {
+        if (ctx.return_met() == null) {
             if(ctx.location()!=null&&ctx.location().ID() != null){
                 Token t = ctx.location().ID().getSymbol();
                 List<? extends Symbol> globalSymbols = globals.getSymbols();
@@ -131,8 +160,8 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
                 }
             
             }
-        }else if(tmetodo){
-            Token t=ctx.RETURN().getSymbol();
+        }else if(mVoid){
+            Token t=ctx.return_met().RETURN().getSymbol();
             this.error(t, "should not return value;");
         }
 

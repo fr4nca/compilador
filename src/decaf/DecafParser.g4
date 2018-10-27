@@ -18,7 +18,7 @@ statement : (location assign_op expr PONTOVIRGULA
 			| method_call PONTOVIRGULA
 			| IF expr block (ELSE block)* 
 			| FOR ID OPIGUAL expr VIRGULA expr block
-			| RETURN (expr)* PONTOVIRGULA
+			| return_met PONTOVIRGULA
 			| BREAK PONTOVIRGULA
 			| CONTINUE PONTOVIRGULA
 			| block);
@@ -34,6 +34,7 @@ expr : location (expr)*
 	| MENOS expr 
 	| EXCLAMACAO expr 
 	| LPARENTESE expr RPARENTESE;
+return_met: RETURN (expr)*;
 call_arg : (expr | STRING);
 bin_op : (OPARIT | OPREL | OPEQ | OPCOND);
 literal : (int_literal | char_literal | bool_literal);
