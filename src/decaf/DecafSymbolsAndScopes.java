@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import com.sun.org.apache.xpath.internal.SourceTree;
 import com.sun.org.apache.xpath.internal.operations.Variable;
 
@@ -42,6 +43,7 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     List<VariableSymbol> parametros = new ArrayList<VariableSymbol>();
     List<VariableSymbol> variaveis = new ArrayList<VariableSymbol>();
     List<FunctionSymbol> funcoes = new ArrayList<FunctionSymbol>();
+    List<VariableSymbol> vetores = new ArrayList<VariableSymbol>();
 
     public DecafSymbolsAndScopes() {
         errors = new ArrayList<String>();
@@ -66,6 +68,8 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
     public void enterField_decl(DecafParser.Field_declContext ctx) {
         Token name = ctx.decl_id().get(0).ID().getSymbol();
         if (ctx.LCOLCHETE().size() > 0) {
+            VariableSymbol vVet = new VariableSymbol(ctx.decl_id(0).ID().getText());
+            vetores.add(vVet);
             String index = ctx.int_literal().get(0).NUMBER().getText();
             int numero = Integer.parseInt(index);
             if (numero <= 0) {
@@ -177,6 +181,10 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
                     Token t = ctx.PONTOVIRGULA().getSymbol();
                     this.error(t, "rhs should be an int expression");
                 }
+                if(ctx.location().LCOLCHETE()!=null&&ctx.expr(i).location().LCOLCHETE()==null
+                    &&ctx.expr(i).location()!=null&&vetores.contains(new VariableSymbol(ctx.expr(i).location().ID().getText()))){
+                    this.error(ctx.PONTOVIRGULA().getSymbol(), "bad type, rhs should be an int");
+                }
             }
         }
         
@@ -224,6 +232,18 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             VariableSymbol vLoc= new VariableSymbol(ctx.ID().getText());
             vLoc.setType(variaveis.get(i).getType());
             argumentos.add(vLoc);
+        }
+        if(ctx.LCOLCHETE()!=null){
+            if(ctx.expr().location()!=null){
+                if(variaveis.indexOf(new VariableSymbol(ctx.expr().location().ID().getText()))!=-1){
+                    if(variaveis.get(variaveis.indexOf(
+                    new VariableSymbol(ctx.expr().location().ID().getText()))).getType()!=DecafSymbol.Type.tINT){
+                       this.error(ctx.LCOLCHETE().getSymbol(), "array index has wrong type");
+                    }
+                }
+            }
+            
+            
         }
         
     }
