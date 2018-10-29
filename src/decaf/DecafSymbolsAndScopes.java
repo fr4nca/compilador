@@ -181,14 +181,13 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
                     Token t = ctx.PONTOVIRGULA().getSymbol();
                     this.error(t, "rhs should be an int expression");
                 }
-                if(ctx.location().LCOLCHETE()!=null&&ctx.expr(i).location().LCOLCHETE()==null
-                    &&ctx.expr(i).location()!=null&&vetores.contains(new VariableSymbol(ctx.expr(i).location().ID().getText()))){
+                if(ctx.location().LCOLCHETE()!=null&&ctx.expr(i).location()!=null&&ctx.expr(i).location().LCOLCHETE()==null&&vetores.contains(new VariableSymbol(ctx.expr(i).location().ID().getText()))){
                     this.error(ctx.PONTOVIRGULA().getSymbol(), "bad type, rhs should be an int");
                 }
             }
         }
         
-       
+    //    
     }
 
     
