@@ -17,6 +17,7 @@ import decaf.DecafParser.Int_literalContext;
 import decaf.DecafParser.LocationContext;
 import decaf.DecafParser.Method_callContext;
 import decaf.DecafParser.Return_metContext;
+import decaf.DecafParser.StatementContext;
 import decaf.DecafParser.TypeContext;
 import decaf.DecafSymbol;
 
@@ -134,16 +135,11 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         if (!mVoid) {
             Type type = DecafSymbol.Type.tINT;
             if (ctx.expr(0).location() != null) {
-                type = variaveis.get(variaveis.indexOf(new VariableSymbol(ctx.expr(0).location().ID().getText())))
-                        .getType();
+                type = getTypeVar(ctx.expr(0).location().ID().getText());
             } else if (ctx.expr(0).literal() != null && ctx.expr(0).literal().bool_literal() != null) {
-                type = argumentos
-                        .get(argumentos.indexOf(new VariableSymbol(ctx.expr(0).literal().bool_literal().getText())))
-                        .getType();
+                type = getTypeArg(ctx.expr(0).literal().bool_literal().getText());
             } else if (ctx.expr(0).literal() != null && ctx.expr(0).literal().int_literal() != null) {
-                type = argumentos
-                        .get(argumentos.indexOf(new VariableSymbol(ctx.expr(0).literal().int_literal().getText())))
-                        .getType();
+                type = getTypeArg(ctx.expr(0).literal().int_literal().getText());
             }
 
             if (type != funcoes.get(0).getType()) {
@@ -177,21 +173,6 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             vFor = false;
         }
 
-        if (ctx.location() != null && ctx.assign_op().OPIGUAL() != null && ctx.expr() != null) {
-            for (int i = 0; i < ctx.expr().size(); i++) {
-                if (ctx.expr(i).bin_op() != null && ctx.expr(i).bin_op().OPARIT() == null) {
-                    Token t = ctx.PONTOVIRGULA().getSymbol();
-                    this.error(t, "rhs should be an int expression");
-                }
-                if (ctx.location().LCOLCHETE() != null && ctx.expr(i).location() != null
-                        && ctx.expr(i).location().LCOLCHETE() == null
-                        && vetores.contains(new VariableSymbol(ctx.expr(i).location().ID().getText()))) {
-                    this.error(ctx.PONTOVIRGULA().getSymbol(), "bad type, rhs should be an int");
-                }
-
-            }
-
-        }
         if (ctx.IF() != null) {
             for (int i = 0; i < ctx.expr().size(); i++) {
                 for (int x = 0; x < ctx.expr(i).expr().size(); x++) {
@@ -202,6 +183,55 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
             }
         }
 
+    }
+
+    @Override
+    public void exitStatement(StatementContext ctx) {
+        if (ctx.location() != null && ctx.assign_op().OPIGUAL() != null && ctx.expr() != null) {
+            Token t = ctx.PONTOVIRGULA().getSymbol();
+            for (int i = 0; i < ctx.expr().size(); i++) {
+                if (variaveis.contains(new VariableSymbol(ctx.location().ID().getText()))
+                        && getTypeVar(ctx.location().ID().getText()) == DecafSymbol.Type.tINT) {
+                    if (ctx.expr(i).bin_op() != null && ctx.expr(i).bin_op().OPARIT() == null) {
+                        this.error(t, "rhs should be an int expression");
+                    }
+                }else if(ctx.expr(i).expr().size()>1){
+                    List<Type> type = new ArrayList<Type>();
+                    for(int x=0;x<ctx.expr(i).expr().size();x++){
+                        if(ctx.expr(i).expr(x).location()==null&&ctx.expr(i).expr(x).literal().int_literal()!=null){
+                            type.add(getTypeArg(ctx.expr(i).expr(x).literal().int_literal().getText()));
+                        }else{
+                            type.add(DecafSymbol.Type.tBOOLEAN);
+                        }
+                    }
+                    if(ctx.expr(i).bin_op().OPREL()!=null){
+                        if(type.get(0)!=DecafSymbol.Type.tINT||type.get(1)!=DecafSymbol.Type.tINT){
+                            this.error(t, "operands of > must be ints");
+                        }
+                    }else if(ctx.expr(i).bin_op().OPEQ()!=null&&type.get(0)!=type.get(1)){
+                        this.error(t, "types of operands of == must be equal");
+                    }
+                    
+                }else if(ctx.expr(i).EXCLAMACAO()!=null
+                    &&ctx.expr(i).expr(0).literal().bool_literal()==null){
+                        this.error(t, "operand of ! must be boolean");
+                }
+
+                if (ctx.location().LCOLCHETE() != null && ctx.expr(i).location() != null
+                        && ctx.expr(i).location().LCOLCHETE() == null
+                        && vetores.contains(new VariableSymbol(ctx.expr(i).location().ID().getText()))) {
+                    this.error(t, "bad type, rhs should be an int");
+                }
+
+            }
+
+        }else if(ctx.location() != null && ctx.assign_op().OPMAISIGUAL() != null && ctx.expr() != null){
+            for (int i = 0; i < ctx.expr().size(); i++) {
+                if(ctx.expr(i).literal().int_literal()==null){
+                    this.error(ctx.PONTOVIRGULA().getSymbol(), "lhs and rhs of += must be int");
+                }
+            }
+        }
     }
 
     @Override
@@ -297,6 +327,14 @@ public class DecafSymbolsAndScopes extends DecafParserBaseListener {
         for (Token name : names) {
             defineVar(ctx.decl_id().type(), name);
         }
+    }
+
+    Type getTypeVar(String name) {
+        return variaveis.get(variaveis.indexOf(new VariableSymbol(name))).getType();
+    }
+
+    Type getTypeArg(String name) {
+        return argumentos.get(argumentos.indexOf(new VariableSymbol(name))).getType();
     }
 
     void defineVar(TypeContext typeCtx, Token nameToken) {
